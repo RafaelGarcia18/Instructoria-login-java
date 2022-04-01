@@ -5,6 +5,10 @@
  */
 package boundary;
 
+import controller.Credentials;
+import entities.Users;
+import java.awt.Color;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,10 +23,15 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
+        setLocationRelativeTo(null);
     }
-    private final String regex = "^(.+)@(.+)$";
-    private final String successfully = "Successfully";
-    private final String error = "Error";
+    private static final String REGEX = "^(.+)@(.+)$";
+    private static final String SUCCESSFULLY = "Successfully";
+    private static final String PASSERROR = "Password error";
+    private static final String ERR = "Error";
+    private final Credentials db = new Credentials();
+    private List<Users> Accounts = db.getUsers();
+    private Successfully profile = new Successfully();
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -156,10 +165,22 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-        String message = validateEmail(txtUsername.getText()) ? successfully : error;
-        lblMessages.setText(message);
-
-
+        if (validateEmail(txtUsername.getText())) {
+            if (db.verify(txtUsername.getText(), pswPassword.getText())) {
+                lblMessages.setText(SUCCESSFULLY);
+                lblMessages.setForeground(new Color(40, 199, 42));
+                reset();
+                profile.setVisible(true);
+            } else {
+                reset();
+                lblMessages.setText(PASSERROR);
+                lblMessages.setForeground(new Color(199, 64, 40));
+            }
+        } else {
+            reset();
+            lblMessages.setText(ERR);
+            lblMessages.setForeground(new Color(199, 64, 40));
+        }
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
@@ -198,14 +219,24 @@ public class Login extends javax.swing.JFrame {
     }
 
     /**
-     * 
+     * Metodo para verificar si el texto ingresado es una direccion de correo
+     * electronico
+     *
      * @param user
-     * @return 
+     * @return true si es un correo valido o false si no es un correo
      */
     private boolean validateEmail(String user) {
-        Pattern pattern = Pattern.compile(regex);
+        Pattern pattern = Pattern.compile(REGEX);
         Matcher matcher = pattern.matcher(user);
         return matcher.matches();
+    }
+
+    /**
+     * Metodo para resetear los campos del formulario
+     */
+    private void reset() {
+        txtUsername.setText("");
+        pswPassword.setText("");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
